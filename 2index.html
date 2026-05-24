@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>省心科研绘图 — 科学可视化品牌</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@0.344.0/dist/umd/lucide.min.js"></script>
+  <style>
+    @keyframes float1 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(18px, -10px); } }
+    @keyframes float2 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-18px, 12px); } }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes countUp { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
+    .animate-float1 { animation: float1 6s infinite ease-in-out; }
+    .animate-float2 { animation: float2 7s infinite ease-in-out; }
+    .animate-pulse-slow { animation: pulse 3s infinite ease-in-out; }
+    .animate-fadeInUp { animation: fadeInUp 0.6s ease-out; }
+    .animate-countUp { animation: countUp 0.4s ease-out; }
+    .slide-bg { transition: background-image 0.5s ease; }
+    .img-preview { object-fit: cover; border-radius: 0.75rem; }
+    .hover-lift { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .hover-lift:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+    .gradient-text { background: linear-gradient(135deg, #67e8f9, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .glass-card { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 3px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+    html { scroll-behavior: smooth; }
+    .particle { position: absolute; background: rgba(103,232,249,0.3); border-radius: 50%; pointer-events: none; animation: float 8s infinite ease-in-out; }
+    @keyframes float { 0%, 100% { transform: translateY(0px) scale(1); opacity: 0.3; } 50% { transform: translateY(-20px) scale(1.2); opacity: 0.6; } }
+  </style>
+</head>
+<body class="bg-slate-950 text-white min-h-screen custom-scrollbar">
+
+  <!-- 固定导航栏 -->
+  <header class="fixed left-0 right-0 top-0 z-50 border-b border-white/10 bg-slate-950/80 backdrop-blur-xl transition-all" id="main-header">
+    <div class="mx-auto flex max-w-7xl items-center justify-between px-5 py-3">
+      <a href="#home" class="flex items-center gap-3 group cursor-pointer">
+        <div class="flex h-12 w-12 items-center justify-center rounded-full border border-cyan-200/60 bg-cyan-300/10 group-hover:bg-cyan-300/20 transition">
+          <i data-lucide="sparkles" class="h-6 w-6 text-cyan-200 group-hover:scale-110 transition-transform"></i>
+        </div>
+        <div>
+          <p class="text-xl font-bold tracking-wide group-hover:text-cyan-200 transition">省心科研绘图</p>
+          <p class="text-xs text-cyan-100/70">Scientific Illustration Studio</p>
+        </div>
+      </a>
+      <nav class="hidden items-center gap-6 text-sm text-white/85 lg:flex">
+        <a href="#home" class="nav-link py-2 hover:text-cyan-200 transition">网站首页</a>
+        <a href="#services" class="nav-link py-2 hover:text-cyan-200 transition">服务范围</a>
+        <a href="#portfolio" class="nav-link py-2 hover:text-cyan-200 transition">案例筛选</a>
+        <a href="#workflow" class="nav-link py-2 hover:text-cyan-200 transition">合作流程</a>
+        <a href="#stats" class="nav-link py-2 hover:text-cyan-200 transition">数据实力</a>
+        <a href="#testimonials" class="nav-link py-2 hover:text-cyan-200 transition">客户评价</a>
+        <a href="#contact" class="nav-link py-2 hover:text-cyan-200 transition">联系我们</a>
+      </nav>
+      <div class="hidden items-center gap-3 md:flex">
+        <div class="relative group">
+          <input id="nav-search-input" class="w-40 bg-white/10 border border-white/10 rounded-xl px-4 py-2 text-sm outline-none placeholder:text-white/45 focus:border-cyan-300 focus:w-56 transition-all duration-300" placeholder="搜索服务...">
+          <i data-lucide="search" class="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/50"></i>
+        </div>
+        <a href="https://shop.m.taobao.com/shop/shop_index.htm?shop_id=你的店铺ID" target="_blank" class="bg-cyan-400 text-slate-950 hover:bg-cyan-300 px-5 py-2 rounded-xl font-semibold text-sm transition shadow-lg shadow-cyan-400/25 inline-flex items-center gap-2">
+          <i data-lucide="shopping-cart" class="h-4 w-4"></i>淘宝咨询
+        </a>
+      </div>
+      <button id="menu-toggle" class="lg:hidden p-2 hover:bg-white/10 rounded-xl transition">
+        <i data-lucide="menu" id="menu-icon-open" class="h-6 w-6"></i>
+        <i data-lucide="x" id="menu-icon-close" class="h-6 w-6 hidden"></i>
+      </button>
+    </div>
+    <div id="mobile-menu" class="hidden border-t border-white/10 bg-slate-950/95 backdrop-blur-xl lg:hidden animate-fadeInUp px-5 py-4 space-y-2">
+      <a href="#home" class="block px-4 py-2 rounded-xl hover:bg-white/10">网站首页</a>
+      <a href="#services" class="block px-4 py-2 rounded-xl hover:bg-white/10">服务范围</a>
+      <a href="#portfolio" class="block px-4 py-2 rounded-xl hover:bg-white/10">案例筛选</a>
+      <a href="#workflow" class="block px-4 py-2 rounded-xl hover:bg-white/10">合作流程</a>
+      <a href="#stats" class="block px-4 py-2 rounded-xl hover:bg-white/10">数据实力</a>
+      <a href="#testimonials" class="block px-4 py-2 rounded-xl hover:bg-white/10">客户评价</a>
+      <a href="#contact" class="block px-4 py-2 rounded-xl hover:bg-white/10">联系我们</a>
+    </div>
+  </header>
+
+  <!-- 首屏轮播 -->
+  <section id="home" class="relative overflow-hidden pt-20 slide-bg min-h-screen flex items-center" style="background-image: linear-gradient(to bottom right, #020617, #0e2844, #0b3b4f);">
+    <div class="absolute inset-0 opacity-30" style="background: radial-gradient(circle at 20% 30%, #67e8f9 0, transparent 28%), radial-gradient(circle at 80% 20%, #a78bfa 0, transparent 24%), radial-gradient(circle at 50% 90%, #22d3ee 0, transparent 30%);"></div>
+    <div id="particles" class="absolute inset-0 overflow-hidden pointer-events-none"></div>
+    <div class="relative mx-auto grid max-w-7xl items-center gap-10 px-5 py-16 lg:grid-cols-[0.9fr_1.1fr] w-full">
+      <div id="slide-content" class="z-10"></div>
+      <div class="relative mx-auto h-[400px] max-w-[760px] overflow-hidden rounded-[3rem] border border-cyan-300/20 bg-gradient-to-br from-cyan-300/5 to-blue-500/5 shadow-2xl shadow-cyan-500/10 backdrop-blur z-10">
+        <div class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.04)_1px,transparent_1px)] bg-[size:30px_30px]"></div>
+        <div class="animate-float1 absolute left-8 top-10 h-32 w-32 rounded-full bg-cyan-300/15 blur-2xl"></div>
+        <div class="animate-float2 absolute bottom-8 right-10 h-40 w-40 rounded-full bg-blue-300/15 blur-2xl"></div>
+        <div class="absolute left-10 top-10 h-16 w-16 rounded-full border border-white/20 bg-white/5"></div>
+        <div class="absolute left-24 top-28 h-10 w-10 rounded-full border border-white/20 bg-white/5"></div>
+        <div class="absolute right-20 top-16 h-12 w-12 rounded-full border border-cyan-200/30 bg-cyan-100/5"></div>
+        <div class="absolute right-24 bottom-20 h-28 w-14 rounded-b-full rounded-t-lg border border-cyan-200/30 bg-cyan-200/5">
+          <div class="absolute bottom-0 h-14 w-full rounded-b-full bg-cyan-300/20"></div>
+        </div>
+        <div class="absolute inset-x-16 top-24 rounded-3xl border border-cyan-200/40 bg-slate-950/40 p-10 text-center shadow-inner backdrop-blur-sm">
+          <p class="text-5xl font-black tracking-[0.15em] text-white drop-shadow-lg">省心科研绘图</p>
+          <p class="mt-6 text-2xl font-semibold text-yellow-300">5 年专注科研视觉品牌</p>
+          <div class="mt-8 flex justify-center gap-3">
+            <a href="#services" class="px-6 py-3 rounded-full bg-cyan-300/20 border border-cyan-300/50 text-cyan-200 hover:bg-cyan-300/30 transition font-medium">查看服务</a>
+            <a href="#contact" class="px-6 py-3 rounded-full bg-white/10 border border-white/20 text-white hover:bg-white/20 transition font-medium">在线估价</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-3 z-20">
+      <button id="prev-slide" class="rounded-full bg-white/10 p-3 backdrop-blur transition hover:bg-white/20 border border-white/20"><i data-lucide="chevron-left" class="h-6 w-6"></i></button>
+      <div id="slide-indicators" class="flex items-center gap-2"></div>
+      <button id="next-slide" class="rounded-full bg-white/10 p-3 backdrop-blur transition hover:bg-white/20 border border-white/20"><i data-lucide="chevron-right" class="h-6 w-6"></i></button>
+    </div>
+    <div class="absolute bottom-0 left-0 right-0 h-1 bg-white/5 z-20"><div id="autoplay-progress" class="h-full bg-cyan-300/60 transition-all" style="width: 0%"></div></div>
+  </section>
+
+  <!-- 数据统计 -->
+  <section id="stats" class="py-16 bg-gradient-to-r from-slate-900 via-slate-950 to-slate-900 border-y border-white/5">
+    <div class="mx-auto max-w-7xl px-5">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+        <div class="group p-6 rounded-2xl hover:bg-white/5 transition"><i data-lucide="users" class="mx-auto h-10 w-10 text-cyan-300"></i><p class="mt-4 text-4xl font-black gradient-text"><span class="counter" data-target="1500">0</span>+</p><p class="mt-2 text-white/60 text-sm">服务科研团队</p></div>
+        <div class="group p-6 rounded-2xl hover:bg-white/5 transition"><i data-lucide="file-check" class="mx-auto h-10 w-10 text-purple-300"></i><p class="mt-4 text-4xl font-black gradient-text"><span class="counter" data-target="3200">0</span>+</p><p class="mt-2 text-white/60 text-sm">完成科研绘图</p></div>
+        <div class="group p-6 rounded-2xl hover:bg-white/5 transition"><i data-lucide="award" class="mx-auto h-10 w-10 text-yellow-300"></i><p class="mt-4 text-4xl font-black gradient-text"><span class="counter" data-target="500">0</span>+</p><p class="mt-2 text-white/60 text-sm">期刊封面录用</p></div>
+        <div class="group p-6 rounded-2xl hover:bg-white/5 transition"><i data-lucide="clock-3" class="mx-auto h-10 w-10 text-green-300"></i><p class="mt-4 text-4xl font-black gradient-text"><span class="counter" data-target="98">0</span>%</p><p class="mt-2 text-white/60 text-sm">客户满意度</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 服务范围 -->
+  <section id="services" class="mx-auto max-w-7xl px-5 py-24">
+    <div class="mb-12 flex flex-col md:flex-row justify-between gap-6 md:items-end">
+      <div><p class="text-cyan-300 tracking-wider text-sm font-medium">SERVICE SCOPE</p><h2 class="mt-3 text-5xl font-black tracking-tight">店铺核心服务</h2><p class="mt-4 text-white/50 max-w-lg">五年深耕科研视觉表达，覆盖从数据图到期刊封面的全流程可视化需求。</p></div>
+      <div class="flex flex-wrap gap-2" id="category-buttons"></div>
+    </div>
+    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4" id="services-grid">
+      <!-- 服务卡片内容由 JS 动态生成以保持简洁，但这里直接写入静态卡片，也可替换为 JS 生成，为了代码长度采用静态卡片 -->
+      <div class="service-card hover-lift group rounded-3xl border border-white/10 bg-white/[0.03] p-7 backdrop-blur cursor-pointer" data-service="期刊封面">
+        <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-300/10 group-hover:bg-cyan-300/20"><i data-lucide="file-image" class="h-7 w-7 text-cyan-300"></i></div>
+        <h3 class="mt-6 text-2xl font-bold">期刊封面</h3><p class="mt-3 text-sm leading-relaxed text-white/50">根据论文创新点、材料结构、实验结果设计高冲击力封面图。</p>
+        <ul class="mt-4 space-y-2 text-xs text-white/40"><li class="flex items-center gap-2"><i data-lucide="check-circle" class="h-3.5 w-3.5 text-cyan-300"></i>Nature/Science/Cell 风格</li><li class="flex items-center gap-2"><i data-lucide="check-circle" class="h-3.5 w-3.5 text-cyan-300"></i>概念视觉设计</li><li class="flex items-center gap-2"><i data-lucide="check-circle" class="h-3.5 w-3.5 text-cyan-300"></i>投稿规范尺寸</li></ul>
+        <div class="mt-6 flex items-center justify-between"><span class="text-2xl font-black text-yellow-300">¥399<span class="text-sm text-white/40 font-normal">起</span></span><div class="flex gap-2"><a href="#contact" class="rounded-full bg-white/10 px-4 py-2 text-xs font-medium text-white hover:bg-cyan-300 hover:text-slate-950 transition">详情</a><a href="https://shop.m.taobao.com/shop/shop_index.htm?shop_id=你的店铺ID" target="_blank" class="rounded-full bg-cyan-300/20 px-4 py-2 text-xs font-medium text-cyan-200 hover:bg-cyan-300 hover:text-slate-950 transition">咨询</a></div></div>
+      </div>
+      <div class="service-card hover-lift group rounded-3xl border border-white/10 bg-white/[0.03] p-7 backdrop-blur cursor-pointer" data-service="摘要图TOC">
+        <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-300/10 group-hover:bg-purple-300/20"><i data-lucide="book-open" class="h-7 w-7 text-purple-300"></i></div>
+        <h3 class="mt-6 text-2xl font-bold">摘要图TOC</h3><p class="mt-3 text-sm leading-relaxed text-white/50">将研究思路、反应路径、器件结构、机制模型转化为清晰图形摘要。</p>
+        <ul class="mt-4 space-y-2 text-xs text-white/40"><li class="flex items-center gap-2"><i data-lucide="check-circle" class="h-3.5 w-3.5 text-purple-300"></i>逻辑梳理优化</li><li class="flex items-center gap-2"><i data-lucide="check-circle" class="h-3.5 w-3.5 text-purple-300"></i>专业版式设计</li><li class="flex items-center gap-2"><i data-lucide="check-circle" class="h-3.5 w-3.5 text-purple-300"></i>一键排版适配</li></ul>
+        <div class="mt-6 flex items-center justify-between"><span class="text-2xl font-black text-yellow-300">¥199<span class="text-sm text-white/40 font-normal">起</span></span><div class="flex gap-2"><a href="#contact" class="rounded-full bg-white/10 px-4 py-2 text-xs font-medium text-white hover:bg-cyan-300 hover:text-slate-950 transition">详情</a><a href="https://shop.m.taobao.com/shop/shop_index.htm?shop_id=你的店铺ID" target="_blank" class="rounded-full bg-cyan-300/20 px-4 py-2 text-xs font-medium text-cyan-200 hover:bg-cyan-300 hover:text-slate-950 transition">咨询</a></div></div>
+      </div>
+      <div class="service-card hover-lift group rounded-3xl border border-white/10 bg-white/[0.03] p-7 backdrop-blur cursor-pointer" data-service="论文配图美化">
+        <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-yellow-300/10 group-hover:bg-yellow-300/20"><i data-lucide="palette" class="h-7 w-7 text-yellow-300"></i></div>
+        <h3 class="mt-6 text-2xl font-bold">论文配图美化</h3><p class="mt-3 text-sm leading-relaxed text-white/50">柱状图、折线图、机制图、示意图、流程图统一风格排版。</p>
+        <ul class="mt-4 space-y-2 text-xs text-white/40"><li class="flex items-center gap-2"><i data-lucide="check-circle" class="h-3.5 w-3.5 text-yellow-300"></i>图表风格统一</li><li class="flex items-center gap-2"><i data-lucide="check-circle" class="h-3.5 w-3.5 text-yellow-300"></i>配色方案优化</li><li class="flex items-center gap-2"><i data-lucide="check-circle" class="h-3.5 w-3.5 text-yellow-300"></i>多图排版整合</li></ul>
+        <div class="mt-6 flex items-center justify-between"><span class="text-2xl font-black text-yellow-300">¥99<span class="text-sm text-white/40 font-normal">起</span></span><div class="flex gap-2"><a href="#contact" class="rounded-full bg-white/10 px-4 py-2 text-xs font-medium text-white hover:bg-cyan-300 hover:text-slate-950 transition">详情</a><a href="https://shop.m.taobao.com/shop/shop_index.htm?shop_id=你的店铺ID" target="_blank" class="rounded-full bg-cyan-300/20 px-4 py-2 text-xs font-medium text-cyan-200 hover:bg-cyan-300 hover:text-slate-950 transition">咨询</a></div></div>
+      </div>
+      <div class="service-card hover-lift group rounded-3xl border border-white/10 bg-white/[0.03] p-7 backdrop-blur cursor-pointer" data-service="科研动画">
+        <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-green-300/10 group-hover:bg-green-300/20"><i data-lucide="video" class="h-7 w-7 text-green-300"></i></div>
+        <h3 class="mt-6 text-2xl font-bold">科研动画</h3><p class="mt-3 text-sm leading-relaxed text-white/50">材料合成、药物递送、分子机制、器件工作原理动态展示。</p>
+        <ul class="mt-4 space-y-2 text-xs text-white/40"><li class="flex items-center gap-2"><i data-lucide="check-circle" class="h-3.5 w-3.5 text-green-300"></i>3D建模渲染</li><li class="flex items-center gap-2"><i data-lucide="check-circle" class="h-3.5 w-3.5 text-green-300"></i>动画演示制作</li><li class="flex items-center gap-2"><i data-lucide="check-circle" class="h-3.5 w-3.5 text-green-300"></i>多格式导出</li></ul>
+        <div class="mt-6 flex items-center justify-between"><span class="text-2xl font-black text-yellow-300">¥699<span class="text-sm text-white/40 font-normal">起</span></span><div class="flex gap-2"><a href="#contact" class="rounded-full bg-white/10 px-4 py-2 text-xs font-medium text-white hover:bg-cyan-300 hover:text-slate-950 transition">详情</a><a href="https://shop.m.taobao.com/shop/shop_index.htm?shop_id=你的店铺ID" target="_blank" class="rounded-full bg-cyan-300/20 px-4 py-2 text-xs font-medium text-cyan-200 hover:bg-cyan-300 hover:text-slate-950 transition">咨询</a></div></div>
+      </div>
+    </div>
+    <!-- 服务详情模态框 -->
+    <div id="service-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+      <div class="bg-slate-900 border border-white/10 rounded-3xl max-w-lg w-full p-8 shadow-2xl animate-fadeInUp">
+        <div class="flex justify-between items-start"><i id="modal-icon" class="h-12 w-12 text-cyan-300"></i><h3 id="modal-title" class="text-2xl font-bold"></h3><button id="modal-close" class="rounded-full bg-white/10 p-2 hover:bg-white/20"><i data-lucide="x" class="h-5 w-5"></i></button></div>
+        <p id="modal-desc" class="mt-4 text-white/60 leading-relaxed"></p><div id="modal-features" class="mt-6 space-y-2"></div>
+        <div class="mt-6 flex gap-3"><a id="modal-contact" href="#contact" class="flex-1 text-center bg-cyan-300 text-slate-950 px-6 py-3 rounded-full font-medium hover:bg-cyan-200">提交需求</a><a href="https://shop.m.taobao.com/shop/shop_index.htm?shop_id=你的店铺ID" target="_blank" class="flex-1 text-center border border-white/20 text-white px-6 py-3 rounded-full font-medium hover:bg-white/10">淘宝咨询</a></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 案例筛选 -->
+  <section id="portfolio" class="bg-white/[0.02] py-24">
+    <div class="mx-auto max-w-7xl px-5">
+      <div class="mb-12 grid gap-6 md:grid-cols-[0.8fr_1.2fr] md:items-end">
+        <div><p class="text-cyan-300 tracking-wider text-sm font-medium">PORTFOLIO FILTER</p><h2 class="mt-3 text-5xl font-black tracking-tight">交互式案例筛选</h2><p class="mt-4 text-white/50">点击案例查看详情，上传你的参考图片进行对比。</p></div>
+        <div class="relative"><i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40"></i><input id="case-search-input" class="w-full bg-slate-900/80 border border-white/10 rounded-2xl pl-12 pr-5 py-4 outline-none placeholder:text-white/30 focus:border-cyan-300 transition text-white" placeholder="搜索案例：材料、生物、封面、动画、TOC..."></div>
+      </div>
+      <div class="grid gap-8 lg:grid-cols-[1fr_0.9fr]">
+        <div id="case-list" class="grid gap-4 md:grid-cols-2 max-h-[600px] overflow-y-auto custom-scrollbar pr-2"></div>
+        <div id="case-detail" class="rounded-[2.5rem] border border-cyan-300/10 bg-gradient-to-br from-cyan-300/5 to-blue-500/5 p-8 shadow-2xl shadow-cyan-500/5 sticky top-24"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 合作流程 -->
+  <section id="workflow" class="mx-auto max-w-7xl px-5 py-24">
+    <p class="text-cyan-300 tracking-wider text-sm font-medium text-center">WORKFLOW</p>
+    <h2 class="mt-3 text-5xl font-black tracking-tight text-center">合作流程</h2>
+    <p class="mt-4 text-white/50 text-center max-w-lg mx-auto">从需求沟通到最终交付，标准化流程确保质量和效率。</p>
+    <div class="mt-14 grid gap-6 md:grid-cols-5 relative">
+      <div class="hidden md:block absolute top-10 left-[10%] right-[10%] h-0.5 bg-gradient-to-r from-cyan-300/0 via-cyan-300/30 to-cyan-300/0"></div>
+      <div class="workflow-step group text-center p-6 rounded-2xl hover:bg-white/5 transition cursor-pointer" data-step="1">
+        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-cyan-300/10 group-hover:bg-cyan-300 text-slate-950 transition-all duration-300 text-xl font-black">1</div>
+        <h4 class="mt-4 font-bold">提交需求</h4><p class="mt-2 text-sm text-white/50">提供论文摘要、草图或实验思路</p>
+      </div>
+      <div class="workflow-step group text-center p-6 rounded-2xl hover:bg-white/5 transition cursor-pointer" data-step="2">
+        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-cyan-300/10 group-hover:bg-cyan-300 text-slate-950 transition-all duration-300 text-xl font-black">2</div>
+        <h4 class="mt-4 font-bold">需求梳理</h4><p class="mt-2 text-sm text-white/50">设计师梳理科学逻辑与视觉方向</p>
+      </div>
+      <div class="workflow-step group text-center p-6 rounded-2xl hover:bg-white/5 transition cursor-pointer" data-step="3">
+        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-cyan-300/10 group-hover:bg-cyan-300 text-slate-950 transition-all duration-300 text-xl font-black">3</div>
+        <h4 class="mt-4 font-bold">确认方案</h4><p class="mt-2 text-sm text-white/50">确认风格、报价与交付时间</p>
+      </div>
+      <div class="workflow-step group text-center p-6 rounded-2xl hover:bg-white/5 transition cursor-pointer" data-step="4">
+        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-cyan-300/10 group-hover:bg-cyan-300 text-slate-950 transition-all duration-300 text-xl font-black">4</div>
+        <h4 class="mt-4 font-bold">制作与修改</h4><p class="mt-2 text-sm text-white/50">制作初稿并在线预览修改</p>
+      </div>
+      <div class="workflow-step group text-center p-6 rounded-2xl hover:bg-white/5 transition cursor-pointer" data-step="5">
+        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-cyan-300/10 group-hover:bg-cyan-300 text-slate-950 transition-all duration-300 text-xl font-black">5</div>
+        <h4 class="mt-4 font-bold">交付成品</h4><p class="mt-2 text-sm text-white/50">交付高清源文件与投稿尺寸版本</p>
+      </div>
+    </div>
+    <div id="workflow-detail" class="mt-10 hidden animate-fadeInUp bg-white/[0.03] border border-white/10 rounded-3xl p-8 text-center"></div>
+  </section>
+
+  <!-- 客户评价轮播 -->
+  <section id="testimonials" class="py-24 bg-white/[0.02]">
+    <div class="mx-auto max-w-5xl px-5">
+      <p class="text-cyan-300 tracking-wider text-sm font-medium text-center">TESTIMONIALS</p>
+      <h2 class="mt-3 text-5xl font-black tracking-tight text-center">客户评价</h2>
+      <div class="mt-12 relative">
+        <div id="testimonial-track" class="flex gap-6 overflow-hidden">
+          <!-- JS 动态创建 -->
+        </div>
+        <button id="test-prev" class="absolute left-0 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-2 hover:bg-white/20"><i data-lucide="chevron-left"></i></button>
+        <button id="test-next" class="absolute right-0 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-2 hover:bg-white/20"><i data-lucide="chevron-right"></i></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 联系我们 -->
+  <section id="contact" class="bg-white/[0.04] py-24">
+    <div class="mx-auto grid max-w-7xl gap-8 px-5 lg:grid-cols-[0.9fr_1.1fr]">
+      <div><p class="text-cyan-300">CONTACT</p><h2 class="mt-2 text-4xl font-bold">在线提交需求</h2><p class="mt-5 leading-8 text-white/65">填写需求并上传参考图片，我们将尽快与你联系。</p>
+        <div class="mt-8 grid gap-4"><div class="flex items-center gap-3 text-white/80"><i data-lucide="message-circle" class="text-cyan-300"></i>淘宝店铺：省心科研绘图</div><div class="flex items-center gap-3 text-white/80"><i data-lucide="clock" class="text-cyan-300"></i>常规初稿：1-3个工作日</div><div class="flex items-center gap-3 text-white/80"><i data-lucide="handshake" class="text-cyan-300"></i>支持长期课题组合作</div></div>
+      </div>
+      <form id="contact-form" class="rounded-[2rem] border border-white/10 bg-slate-950/70 p-6 shadow-xl">
+        <div class="grid gap-4 md:grid-cols-2"><input required placeholder="姓名 / 昵称" id="form-name" class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-cyan-300"><input required placeholder="研究方向" id="form-field" class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-cyan-300"></div>
+        <textarea required rows="4" placeholder="请描述需求..." id="form-need" class="mt-4 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-cyan-300"></textarea>
+        <div class="mt-4"><label class="block text-sm text-white/70 mb-2">上传参考图（可多选）</label><input type="file" id="form-images" multiple accept="image/*" class="hidden"><button type="button" id="upload-trigger" class="flex items-center gap-2 rounded-2xl border border-dashed border-white/20 bg-white/5 px-4 py-3 text-white/60 hover:border-cyan-300 hover:text-cyan-200 transition w-full justify-center"><i data-lucide="upload" class="h-5 w-5"></i>点击选择图片</button><div id="image-previews" class="mt-3 flex flex-wrap gap-2"></div></div>
+        <button type="submit" class="mt-5 w-full bg-cyan-300 text-slate-950 hover:bg-cyan-200 px-6 py-3 rounded-full font-medium flex items-center justify-center gap-2 transition"><i data-lucide="send" class="h-5 w-5"></i>提交需求</button>
+        <div id="form-success" class="mt-4 hidden rounded-2xl bg-emerald-400/10 px-4 py-3 text-emerald-200 flex items-center gap-2"><i data-lucide="check-circle-2" class="h-5 w-5"></i>已收到需求，客服将尽快与你确认报价与工期。</div>
+      </form>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="about" class="mx-auto max-w-5xl px-5 py-24">
+    <p class="text-center text-cyan-300">FAQ</p><h2 class="mt-2 text-center text-4xl font-bold">常见问题</h2>
+    <div class="mt-10 grid gap-4" id="faq-list">
+      <!-- JS 渲染 -->
+    </div>
+  </section>
+
+  <!-- 页脚 -->
+  <footer class="border-t border-white/10 bg-slate-950 px-5 py-10 text-center text-white/50"><p class="text-lg font-bold text-white">省心科研绘图</p><p class="mt-2">科研配图 · 期刊封面 · 图形摘要 · 科研动画 · 论文图表美化</p></footer>
+
+  <script>
+    lucide.createIcons();
+    // ---------- 全局数据 ----------
+    const slides = [
+      { title: "省心科研绘图", subtitle: "让复杂科研结果，一眼看懂", tag: "5年专注科研视觉表达", cta: "查看服务", gradient: "linear-gradient(to bottom right, #020617, #0e2844, #0b3b4f)" },
+      { title: "期刊封面设计", subtitle: "Nature / Science / Cell 风格科研封面定制", tag: "高端封面 · 概念视觉 · 投稿加分", cta: "预约设计", gradient: "linear-gradient(to bottom right, #1e1b4b, #0f172a, #0f3e3e)" },
+      { title: "论文图形摘要", subtitle: "TOC、机制图、技术路线图、流程图一站式优化", tag: "SCI论文配图 · 逻辑清晰 · 版式专业", cta: "上传需求", gradient: "linear-gradient(to bottom right, #020617, #3b0764, #0b3b4f)" },
+    ];
+    const cases = [
+      { name: "纳米材料催化机制图", field: "材料 / 化学", type: "机制示意图", level: "SCI投稿级", image: "https://placehold.co/400x240/0f172a/67e8f9?text=纳米催化" },
+      { name: "肿瘤靶向递送TOC", field: "生物医学", type: "图形摘要", level: "高端定制", image: "https://placehold.co/400x240/0f172a/a78bfa?text=靶向递送" },
+      { name: "柔性传感器期刊封面", field: "电子 / 器件", type: "期刊封面", level: "概念视觉", image: "https://placehold.co/400x240/0f172a/facc15?text=柔性传感器" },
+      { name: "能源储存工作原理动画", field: "能源 / 电化学", type: "科研动画", level: "可视化演示", image: "https://placehold.co/400x240/0f172a/22d3ee?text=能源动画" },
+      { name: "光电传感系统架构图", field: "传感 / 仪器", type: "论文配图", level: "论文级排版", image: "https://placehold.co/400x240/0f172a/f472b6?text=光电传感" },
+      { name: "机器学习科研流程图", field: "AI / 交叉学科", type: "流程图", level: "逻辑优化", image: "https://placehold.co/400x240/0f172a/34d399?text=ML流程图" },
+    ];
+    const testimonials = [
+      { text: "效果远超预期，封面一次通过编辑审核，强烈推荐！", author: "张博士", uni: "清华大学" },
+      { text: "服务专业，响应快，TOC图让审稿人眼前一亮。", author: "李教授", uni: "浙江大学" },
+      { text: "机制图逻辑清晰，配色高级，合作非常愉快。", author: "王研究员", uni: "中科院" },
+    ];
+    const faqs = [
+      { q: "没有草图可以做吗？", a: "可以。只需提供论文摘要、实验结果、关键机制或参考图片，我们会先帮你梳理画面逻辑。" },
+      { q: "可以按目标期刊风格设计吗？", a: "可以。可参考 Nature、Science、Cell、ACS、Elsevier、Wiley 等常见期刊视觉风格。" },
+      { q: "交付什么文件？", a: "常规交付高清PNG/JPG，也可按需求交付AI、PSD、PPT、PDF等源文件或可编辑版本。" },
+    ];
+
+    // ---------- 粒子效果 ----------
+    const particlesContainer = document.getElementById('particles');
+    for (let i = 0; i < 30; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'particle';
+      particle.style.left = Math.random() * 100 + '%';
+      particle.style.top = Math.random() * 100 + '%';
+      particle.style.width = particle.style.height = Math.random() * 8 + 2 + 'px';
+      particle.style.animationDuration = Math.random() * 10 + 5 + 's';
+      particlesContainer.appendChild(particle);
+    }
+
+    // ---------- 轮播 ----------
+    let activeSlide = 0;
+    let autoplayInterval;
+    const homeSection = document.getElementById('home');
+    const slideContent = document.getElementById('slide-content');
+    const progressBar = document.getElementById('autoplay-progress');
+    const indicators = document.getElementById('slide-indicators');
+
+    function renderIndicators() {
+      indicators.innerHTML = slides.map((_, i) => `<button class="w-3 h-3 rounded-full transition-all ${i === activeSlide ? 'bg-cyan-300 scale-125' : 'bg-white/30 hover:bg-white/50'}" data-index="${i}"></button>`).join('');
+      document.querySelectorAll('#slide-indicators button').forEach(btn => btn.addEventListener('click', () => {
+        activeSlide = parseInt(btn.dataset.index);
+        renderSlide();
+        resetAutoplay();
+      }));
+    }
+
+    function renderSlide() {
+      const s = slides[activeSlide];
+      slideContent.innerHTML = `
+        <div class="mb-5 inline-flex items-center gap-2 rounded-full border border-cyan-200/40 bg-white/10 px-4 py-2 text-sm text-cyan-100"><i data-lucide="star" class="h-4 w-4"></i>${s.tag}</div>
+        <h1 class="text-5xl font-black leading-tight md:text-7xl">${s.title}</h1>
+        <p class="mt-6 max-w-xl text-xl leading-9 text-white/80">${s.subtitle}</p>
+        <div class="mt-8 flex flex-wrap gap-4">
+          <a href="#services" class="bg-cyan-300 text-slate-950 hover:bg-cyan-200 px-6 py-3 rounded-full font-medium inline-flex items-center gap-2"><i data-lucide="shopping-bag" class="h-5 w-5"></i>${s.cta}</a>
+          <a href="#contact" class="border border-white/40 bg-white/10 text-white hover:bg-white/20 px-6 py-3 rounded-full font-medium inline-flex items-center gap-2"><i data-lucide="mouse-pointer-2" class="h-5 w-5"></i>在线估价</a>
+        </div>`;
+      homeSection.style.backgroundImage = s.gradient;
+      renderIndicators();
+      lucide.createIcons();
+    }
+
+    function startAutoplay() {
+      let width = 0;
+      progressBar.style.width = '0%';
+      autoplayInterval = setInterval(() => {
+        width += 1;
+        progressBar.style.width = width + '%';
+        if (width >= 100) {
+          clearInterval(autoplayInterval);
+          activeSlide = (activeSlide + 1) % slides.length;
+          renderSlide();
+          startAutoplay();
+        }
+      }, 50);
+    }
+    function resetAutoplay() {
+      clearInterval(autoplayInterval);
+      startAutoplay();
+    }
+    document.getElementById('next-slide').addEventListener('click', () => {
+      activeSlide = (activeSlide + 1) % slides.length;
+      renderSlide();
+      resetAutoplay();
+    });
+    document.getElementById('prev-slide').addEventListener('click', () => {
+      activeSlide = (activeSlide - 1 + slides.length) % slides.length;
+      renderSlide();
+      resetAutoplay();
+    });
+    renderSlide();
+    startAutoplay();
+
+    // ---------- 移动端菜单 ----------
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const iconOpen = document.getElementById('menu-icon-open');
+    const iconClose = document.getElementById('menu-icon-close');
+    menuToggle.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+      iconOpen.classList.toggle('hidden');
+      iconClose.classList.toggle('hidden');
+    });
+    mobileMenu.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
+      mobileMenu.classList.add('hidden');
+      iconOpen.classList.remove('hidden');
+      iconClose.classList.add('hidden');
+    }));
+
+    // ---------- 数字统计滚动 ----------
+    function animateCounters() {
+      document.querySelectorAll('.counter').forEach(counter => {
+        const target = +counter.dataset.target;
+        const duration = 2000;
+        const step = target / (duration / 16);
+        let current = 0;
+        const updateCounter = () => {
+          current += step;
+          if (current < target) {
+            counter.textContent = Math.floor(current);
+            requestAnimationFrame(updateCounter);
+          } else {
+            counter.textContent = target;
+          }
+        };
+        updateCounter();
+      });
+    }
+    // 使用 IntersectionObserver 触发
+    const statsSection = document.getElementById('stats');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateCounters();
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    observer.observe(statsSection);
+
+    // ---------- 服务卡片点击详情 ----------
+    document.querySelectorAll('.service-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const service = card.dataset.service;
+        const title = card.querySelector('h3').textContent;
+        const desc = card.querySelector('p').textContent;
+        const features = Array.from(card.querySelectorAll('li')).map(li => li.textContent);
+        document.getElementById('modal-title').textContent = title;
+        document.getElementById('modal-desc').textContent = desc;
+        const featuresDiv = document.getElementById('modal-features');
+        featuresDiv.innerHTML = features.map(f => `<div class="flex items-center gap-2 text-white/70"><i data-lucide="check-circle" class="h-4 w-4 text-cyan-300"></i>${f}</div>`).join('');
+        lucide.createIcons();
+        document.getElementById('service-modal').classList.remove('hidden');
+      });
+    });
+    document.getElementById('modal-close').addEventListener('click', () => document.getElementById('service-modal').classList.add('hidden'));
+    document.getElementById('service-modal').addEventListener('click', (e) => { if (e.target === e.currentTarget) document.getElementById('service-modal').classList.add('hidden'); });
+
+    // ---------- 案例筛选（含图片上传） ----------
+    let selectedCase = cases[0];
+    let currentCategory = "全部";
+    let searchQuery = "";
+    const caseSearchInput = document.getElementById('case-search-input');
+    const navSearchInput = document.getElementById('nav-search-input');
+    const caseListDiv = document.getElementById('case-list');
+    const caseDetailDiv = document.getElementById('case-detail');
+    const categoryDiv = document.getElementById('category-buttons');
+
+    function syncSearch(src) {
+      if (src === caseSearchInput) navSearchInput.value = caseSearchInput.value;
+      else caseSearchInput.value = navSearchInput.value;
+      searchQuery = src.value.trim();
+      renderCaseList();
+    }
+    caseSearchInput.addEventListener('input', () => syncSearch(caseSearchInput));
+    navSearchInput.addEventListener('input', () => syncSearch(navSearchInput));
+
+    const categories = ["全部", "封面", "图形摘要", "动画", "材料", "生物"];
+    function renderCategoryBtns() {
+      categoryDiv.innerHTML = categories.map(cat => {
+        const active = cat === currentCategory;
+        return `<button class="category-btn px-4 py-2 rounded-full text-sm font-medium transition ${active ? 'bg-cyan-300 text-slate-950' : 'border border-white/20 bg-white/5 text-white hover:bg-white/10'}" data-cat="${cat}">${cat}</button>`;
+      }).join('');
+      document.querySelectorAll('.category-btn').forEach(btn => btn.addEventListener('click', () => {
+        currentCategory = btn.dataset.cat;
+        renderCategoryBtns();
+        renderCaseList();
+      }));
+    }
+
+    function getFiltered() {
+      return cases.filter(c => (c.name + c.field + c.type).includes(searchQuery) && (currentCategory === "全部" || c.type.includes(currentCategory) || c.field.includes(currentCategory)));
+    }
+
+    function uploadCaseImage(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        selectedCase.image = ev.target.result;
+        renderCaseList();
+        renderCaseDetail();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function renderCaseList() {
+      const filtered = getFiltered();
+      if (filtered.length === 0) {
+        caseListDiv.innerHTML = `<p class="text-white/50 col-span-2 text-center py-10">没有匹配的案例</p>`;
+        caseDetailDiv.innerHTML = `<div class="flex h-full items-center justify-center text-white/30">请选择案例</div>`;
+        return;
+      }
+      if (!filtered.includes(selectedCase)) selectedCase = filtered[0];
+      caseListDiv.innerHTML = filtered.map(c => `
+        <div class="case-card rounded-2xl border p-4 text-left transition cursor-pointer ${selectedCase.name === c.name ? 'border-cyan-300 bg-cyan-300/10' : 'border-white/10 bg-white/[0.05] hover:border-white/30'}" data-name="${c.name}">
+          <img src="${c.image}" alt="${c.name}" class="w-full h-32 object-cover rounded-xl mb-3 img-preview">
+          <p class="text-lg font-bold">${c.name}</p><p class="mt-1 text-sm text-white/60">${c.field} · ${c.type}</p>
+          <span class="mt-2 inline-flex rounded-full bg-white/10 px-3 py-1 text-xs text-cyan-200">${c.level}</span>
+        </div>`).join('');
+      document.querySelectorAll('.case-card').forEach(card => card.addEventListener('click', () => {
+        selectedCase = cases.find(c => c.name === card.dataset.name);
+        renderCaseList();
+        renderCaseDetail();
+      }));
+      renderCaseDetail();
+    }
+
+    function renderCaseDetail() {
+      if (!selectedCase) return;
+      caseDetailDiv.innerHTML = `
+        <div class="relative rounded-3xl border border-white/10 bg-slate-950/50 overflow-hidden" style="height:280px">
+          <img src="${selectedCase.image}" alt="${selectedCase.name}" class="w-full h-full object-cover">
+          <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4"><p class="text-xl font-bold">${selectedCase.name}</p><p class="text-white/70 text-sm">${selectedCase.field}</p></div>
+        </div>
+        <div class="mt-4 grid grid-cols-3 gap-3 text-center"><div class="rounded-2xl bg-white/5 p-3"><p class="text-xs text-white/50">类型</p><p class="mt-1 font-semibold">${selectedCase.type}</p></div><div class="rounded-2xl bg-white/5 p-3"><p class="text-xs text-white/50">等级</p><p class="mt-1 font-semibold">${selectedCase.level}</p></div><div class="rounded-2xl bg-white/5 p-3"><p class="text-xs text-white/50">交付</p><p class="mt-1 font-semibold">高清源文件</p></div></div>
+        <div class="mt-4 flex justify-center"><label class="flex items-center gap-2 rounded-full bg-cyan-300/20 text-cyan-200 px-4 py-2 cursor-pointer hover:bg-cyan-300/30 transition text-sm"><i data-lucide="upload" class="h-4 w-4"></i>上传自定义案例图片<input type="file" accept="image/*" class="hidden case-upload-input"></label></div>`;
+      caseDetailDiv.querySelector('.case-upload-input').addEventListener('change', uploadCaseImage);
+      lucide.createIcons();
+    }
+    renderCategoryBtns();
+    renderCaseList();
+
+    // ---------- 合作流程步骤点击 ----------
+    document.querySelectorAll('.workflow-step').forEach(step => {
+      step.addEventListener('click', () => {
+        const stepNum = step.dataset.step;
+        const details = {
+          '1': '您可通过在线表单、淘宝客服或邮箱提交论文摘要、草图或实验思路，我们将在1小时内回复。',
+          '2': '设计团队会深入理解您的研究内容，梳理核心科学逻辑，并提供初步视觉方向建议。',
+          '3': '双方确认设计风格、报价及交付时间，确保后续工作高效推进。',
+          '4': '制作初稿并提供在线预览链接，支持多轮修改直至满意。',
+          '5': '交付高清PNG/JPG及AI/PSD源文件，提供不同期刊尺寸版本。'
+        };
+        const detailDiv = document.getElementById('workflow-detail');
+        detailDiv.innerHTML = `<h4 class="text-xl font-bold text-cyan-200 mb-4">步骤 ${stepNum}：${step.querySelector('h4').textContent}</h4><p class="text-white/70 leading-relaxed">${details[stepNum]}</p>`;
+        detailDiv.classList.remove('hidden');
+      });
+    });
+
+    // ---------- 客户评价轮播 ----------
+    let testIndex = 0;
+    const track = document.getElementById('testimonial-track');
+    function renderTestimonials() {
+      track.innerHTML = testimonials.map(t => `
+        <div class="flex-shrink-0 w-80 bg-white/[0.03] border border-white/10 rounded-2xl p-6">
+          <i data-lucide="quote" class="text-cyan-300 mb-3"></i>
+          <p class="text-white/80">${t.text}</p>
+          <div class="mt-4"><p class="font-bold">${t.author}</p><p class="text-xs text-white/50">${t.uni}</p></div>
+        </div>`).join('');
+      lucide.createIcons();
+    }
+    renderTestimonials();
+    document.getElementById('test-prev').addEventListener('click', () => { track.scrollBy({ left: -340, behavior: 'smooth' }); });
+    document.getElementById('test-next').addEventListener('click', () => { track.scrollBy({ left: 340, behavior: 'smooth' }); });
+
+    // ---------- FAQ 动态渲染 ----------
+    const faqList = document.getElementById('faq-list');
+    faqList.innerHTML = faqs.map((f, i) => `
+      <div class="faq-item rounded-2xl border border-white/10 bg-white/[0.05]">
+        <button class="faq-question flex w-full items-center justify-between p-5 text-left font-bold" data-index="${i}">${f.q}<span class="text-cyan-300">+</span></button>
+        <p class="faq-answer hidden px-5 pb-5 leading-8 text-white/65">${f.a}</p>
+      </div>`).join('');
+    document.querySelectorAll('.faq-question').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const answer = btn.nextElementSibling;
+        const icon = btn.querySelector('span');
+        const isOpen = !answer.classList.contains('hidden');
+        document.querySelectorAll('.faq-answer').forEach(a => a.classList.add('hidden'));
+        document.querySelectorAll('.faq-question span').forEach(s => s.textContent = '+');
+        if (!isOpen) {
+          answer.classList.remove('hidden');
+          icon.textContent = '−';
+        }
+      });
+    });
+
+    // ---------- 表单 + 图片上传 ----------
+    const contactForm = document.getElementById('contact-form');
+    const successMsg = document.getElementById('form-success');
+    const fileInput = document.getElementById('form-images');
+    const uploadTrigger = document.getElementById('upload-trigger');
+    const previewContainer = document.getElementById('image-previews');
+    uploadTrigger.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', () => {
+      const files = Array.from(fileInput.files);
+      previewContainer.innerHTML = '';
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          img.className = 'w-16 h-16 object-cover rounded-xl border border-white/20';
+          previewContainer.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+      });
+      uploadTrigger.innerHTML = `<i data-lucide="check-circle" class="h-5 w-5 text-emerald-300"></i> 已选择 ${files.length} 张图片`;
+      lucide.createIcons();
+    });
+    contactForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      successMsg.classList.remove('hidden');
+      setTimeout(() => successMsg.classList.add('hidden'), 3000);
+      contactForm.reset();
+      previewContainer.innerHTML = '';
+      uploadTrigger.innerHTML = `<i data-lucide="upload" class="h-5 w-5"></i> 点击选择图片`;
+      lucide.createIcons();
+    });
+
+    // ---------- 导航高亮 ----------
+    window.addEventListener('scroll', () => {
+      const sections = document.querySelectorAll('section[id]');
+      let current = '';
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop - 100;
+        if (window.pageYOffset >= sectionTop) current = section.getAttribute('id');
+      });
+      document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('text-cyan-200');
+        if (link.getAttribute('href') === '#' + current) link.classList.add('text-cyan-200');
+      });
+    });
+
+    lucide.createIcons();
+  </script>
+</body>
+</html>
